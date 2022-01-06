@@ -1,18 +1,23 @@
-// Importation modules
-const jwt = require("jsonwebtoken");
+// Importation des modules 
+const jwt = require('jsonwebtoken');
+const Cookies = require('cookies');
+const cryptojs = require('crypto-js');
+require('dotenv').config();
 
-// Renforcement authentification
 module.exports = (req, res, next) => {
-    try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-        const userId = decodedToken.userId;
-        if(req.body.userId && req.body.userId !== userId) {
-            throw 'User ID invalid !';
-        } else {
-            next();
-        }
-    } catch (error) {
-        res.status(401).json({ error: error | 'Requête invalide !' });
+  try {
+    const cryptedCookie = new Cookies(req, res).get('snToken');
+    const cookie = JSON.parse(cryptojs.AES.decrypt(cryptedCookie, process.env.COOKIE_KEY).toString(cryptojs.enc.Utf8));
+
+    const token = jwt.verify(cookie.token, process.env.JWT_KEY);
+
+    if (cookie.userId && cookie.userId !== token.userId) {
+      console.log("User ID non valable");
+      throw "User ID non valable";
+    } else {
+      next();
     }
-};
+  } catch (error) {
+    res.status(401).json({ error: 'Requête non authentifiée' });
+  }
+}
