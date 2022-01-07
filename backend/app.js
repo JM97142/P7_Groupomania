@@ -22,7 +22,13 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
+
+// Sécurisation headers
 app.use(helmet());
+
+// Requêtes au serveur
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+app.use(morgan('combined', { stream: accessLogStream }));
 
 // Connexion base de données
 database.connect();

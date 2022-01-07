@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Auth from "../views/Auth.vue";
 import Home from "../views/Home.vue";
+import Setting from "../views/Setting.vue";
+import Search from "../views/Search.vue";
 
 function guardMyroute(to, from, next) {
   const option = {
@@ -29,6 +31,18 @@ const routes = [
     name: "Home",
     beforeEnter: guardMyroute,
     component: Home,
+  },
+  {
+    path: "/setting",
+    name: "Setting",
+    beforeEnter: guardMyroute,
+    component: Setting,
+  },
+  {
+    path: "/search",
+    name: "search",
+    beforeEnter: guardMyroute,
+    component: Search,
   },
 ];
 
