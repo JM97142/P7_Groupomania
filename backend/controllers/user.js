@@ -58,7 +58,7 @@ exports.login = (req, res, next) => {
     const sql =
         "SELECT id, email, password, name, pictureurl, isadmin FROM Users WHERE email= ?";
     const sqlParams = [researchedEmail];
-    // requête préparée de mysql2
+    // requête mysql2
     connection.execute(sql, sqlParams, (error, results, fields) => {
         if (error) {
             res.status(500).json({ error: error.sqlMessage });
@@ -112,7 +112,7 @@ exports.logout = (req, res, next) => {
     // on remplace le cookie par un vide
     new Cookies(req, res).set("snToken", "", {
         httpOnly: true,
-        maxAge: 1, // 1ms (= suppression quasi instantannée)
+        maxAge: 1,
     });
     res.status(200).json({ message: "utilisateur déconnecté" });
 };
@@ -120,4 +120,73 @@ exports.logout = (req, res, next) => {
 // Vérification si un utilisateur est bien loggé
 exports.isAuth = (req, res, next) => {
     res.status(200).json({ message: "utilisateur bien authentifié" });
+};
+
+// Renvoie les infos d'un utilisateur, en fonction de l'Id utilisateur stocké dans le cookie
+exports.getCurrentUser = (req, res, next) => {
+    const connection = database.connect();
+    const cryptedCookie = new Cookies(req, res).get("snToken");
+    const cookie = JSON.parse(
+        cryptojs.AES.decrypt(cryptedCookie, process.env.COOKIE_KEY).toString(
+        cryptojs.enc.Utf8
+        )
+    );
+    const searchId = cookie.userId;
+    const sql = "SELECT id, name, pictureurl, isadmin FROM Users WHERE id=?";
+    const sqlParams = [searchId];
+    connection.execute(sql, sqlParams, (error, results, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+        } else if (results.length === 0) {
+            res.status(401).json({ error: "Cet utilisateur n'existe pas" });
+        } else {
+            res.status(200).json({
+            userId: results[0].id,
+            name: results[0].name,
+            pictureUrl: results[0].pictureurl,
+            isAdmin: results[0].isadmin,
+            });
+        }
+    });
+    connection.end();
+};
+  
+// Récupération de tous les utilisateurs
+exports.getAllUsers = (req, res, next) => {
+    const connection = database.connect();
+    const sql = "SELECT id, name, pictureurl FROM Users;";
+    connection.query(sql, (error, users, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+        } else {
+            res.status(200).json({ users });
+        }
+    });
+    connection.end();
+};
+  
+// Récupération d'un seul utilisateur
+exports.getOneUser = (req, res, next) => {
+    const connection = database.connect();
+    const searchId = req.params.id;
+    const sql =
+        "SELECT id, name, email, pictureurl, outline, isadmin FROM Users WHERE id=?";
+    const sqlParams = [searchId];
+    connection.execute(sql, sqlParams, (error, results, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+        } else if (results.length === 0) {
+            res.status(401).json({ error: "Cet utilisateur n'existe pas" });
+        } else {
+            res.status(200).json({
+                id: results[0].id,
+                name: results[0].name,
+                email: results[0].email,
+                pictureurl: results[0].pictureurl,
+                outline: results[0].outline,
+                isadmin: results[0].isadmin,
+            });
+        }
+    });
+    connection.end();
 };
