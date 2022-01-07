@@ -7,6 +7,8 @@ const router = express.Router();
 const userCtrl = require('../controllers/user');
 const auth = require('../middlewares/auth');
 const validate = require('../middlewares/validate-inputs');
+const multer = require('../middlewares/multer-config');
+const credential = require('../middlewares/credential');
 
 // Routes
 router.post('/new', validate.newUser, userCtrl.newuser);
@@ -17,11 +19,10 @@ router.get('/currentuser', auth, userCtrl.getCurrentUser);
 router.get('/', auth, userCtrl.getAllUsers);
 router.get('/search', auth, validate.searchUser, userCtrl.searchUsers);
 router.get('/:id', auth, validate.id, userCtrl.getOneUser);
-router.get('/:id/posts', auth, validate.id, userCtrl.getAllPostsOfUser);
-router.put('/:id/password', auth, validate.id, validate.changePassword, userCtrl.changePassword);
-router.put('/:id/picture', auth, validate.id, multer, userCtrl.changeProfilePicture);
-router.put('/:id/outline', auth, validate.id, validate.outline, userCtrl.changeOutline);
-router.put('/:id/admin', auth, validate.id, validate.adminCredential, userCtrl.changeAdmin);
-router.delete('/:id', auth, validate.id, userCtrl.deleteAccount);
+router.put('/:id/password', auth, validate.id, validate.changePassword, credential.sameUser, userCtrl.changePassword);
+router.put('/:id/picture', auth, validate.id, credential.sameUser, multer, userCtrl.changeProfilePicture);
+router.put('/:id/outline', auth, validate.id, validate.outline, credential.sameUser, userCtrl.changeOutline);
+router.put('/:id/admin', auth, validate.id, validate.adminCredential, credential.isAdmin, userCtrl.changeAdmin);
+router.delete('/:id', auth, validate.id, credential.sameUser, userCtrl.deleteAccount);
 
 module.exports = router;
