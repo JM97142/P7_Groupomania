@@ -190,3 +190,139 @@ exports.getOneUser = (req, res, next) => {
     });
     connection.end();
 };
+
+// Recherche d'utilisateurs
+exports.searchUsers = (req, res, next) => {
+    const connection = database.connect();
+    const searchTerm = "%" + req.query.name + "%";
+    const sql = "SELECT id, name, pictureurl FROM Users WHERE name LIKE ?;";
+    const sqlParams = [searchTerm];
+    connection.execute(sql, sqlParams, (error, users, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+        } else {
+            res.status(200).json({ users });
+        }
+    });
+    connection.end();
+};
+  
+// Changer mot de passe
+exports.changePassword = (req, res, next) => {
+    const connection = database.connect();
+    const searchId = req.params.id;
+    const sql = "SELECT password FROM Users WHERE id=?";
+    const sqlParams = [searchId];
+    connection.execute(sql, sqlParams, (error, results, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+            connection.end();
+        } else {
+        const DBPasswordHash = cryptojs.AES.decrypt(
+            results[0].password,
+            process.env.CRYPT_USER_INFO
+        ).toString(cryptojs.enc.Utf8);
+        bcrypt.compare(req.body.oldPassword, DBPasswordHash)
+            .then((valid) => {
+                if (!valid) {
+                    connection.end();
+                    return res
+                    .status(401).json({ error: "Ancien mot de passe incorrect!" });
+            }
+            bcrypt.hash(req.body.newPassword, 10)
+                .then((hash) => {
+                    const newPassword = cryptojs.AES.encrypt(
+                    hash,
+                    process.env.CRYPT_USER_INFO
+                ).toString();
+                const sql2 = "UPDATE Users SET password=? WHERE id=?";
+                const sqlParams2 = [newPassword, searchId];
+                connection.execute(sql2, sqlParams2, (error, results, fields) => {
+                    if (error) {
+                        connection.end();
+                        res.status(500).json({ error: error.sqlMessage });
+                    } else {
+                    connection.end();
+                    res.status(201).json({ message: "Mot de passe modifié" });
+                    }
+                });
+                })
+                .catch((error) => res.status(500).json({ error }));
+            })
+            .catch((error) => res.status(500).json({ error }));
+        }
+    });
+};
+  
+// Changer photo de profil utilisateur
+exports.changeProfilePicture = (req, res, next) => {
+    const connection = database.connect();
+    const imageUrl = `${req.protocol}://${req.get("host")}/images/${
+        req.file.filename
+    }`;
+    const userId = req.params.id;
+    const sql = "UPDATE Users SET pictureurl=? WHERE id=?";
+    const sqlParams = [imageUrl, userId];
+    connection.execute(sql, sqlParams, (error, results, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+        } else {
+            res.status(201).json({ message: "Photo de profil modifiée" });
+        }
+    });
+    connection.end();
+};
+  
+// Changer description utilisateur
+exports.changeOutline = (req, res, next) => {
+    const connection = database.connect();
+    const outline = req.body.outline;
+    const userId = req.params.id;
+    const sql = "UPDATE Users SET outline=? WHERE id=?";
+    const sqlParams = [outline, userId];
+    connection.execute(sql, sqlParams, (error, results, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+        } else {
+            res.status(201).json({ message: "Description du profil modifiée" });
+        }
+    });
+    connection.end();
+};
+  
+// Donner/enlever les droits d'admin
+exports.changeAdmin = (req, res, next) => {
+    const connection = database.connect();
+    const isadmin = req.body.isadmin;
+    const userId = req.params.id;
+    const sql = "UPDATE Users SET isadmin=? WHERE id=?";
+    const sqlParams = [isadmin, userId];
+    connection.execute(sql, sqlParams, (error, results, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+        } else {
+            res.status(201).json({ message: "Droits d'administrateur modifiée" });
+        }
+    });
+    connection.end();
+};
+  
+// Supprimer son compte utilisateur
+exports.deleteAccount = (req, res, next) => {
+    const connection = database.connect();
+    const userId = req.params.id;
+    const sql = "DELETE FROM Users WHERE id=?";
+    const sqlParams = [userId];
+    connection.execute(sql, sqlParams, (error, results, fields) => {
+        if (error) {
+            res.status(500).json({ error: error.sqlMessage });
+        } else {
+        new Cookies(req, res).set("snToken", false, {
+            httpOnly: true,
+            maxAge: 1000, // 1s
+        });
+        res.status(201).json({ message: "Utilisateur supprimé" });
+        }
+    });
+    connection.end();
+};

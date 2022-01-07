@@ -40,3 +40,50 @@ exports.id = (req, res, next) => {
         next();
     } 
 }
+
+// Vérification recherche utilisateur
+const searchUserSchema = Joi.string().trim();
+exports.searchUser = (req, res, next) => {
+  const {error, value} = searchUserSchema.validate(req.query.name);
+  if (error) {
+      res.status(422).json({ error: "Données saisies invalides" });
+  } else {
+      next();
+  } 
+}
+
+// Vérification description utilisateur
+const outlineSchema = Joi.string().trim().required();
+exports.outline = (req, res, next) => {
+  const {error, value} = outlineSchema.validate(req.body.outline);
+  if (error) {
+      res.status(422).json({ error: "Description invalide" });
+  } else {
+      next();
+  }
+}
+
+// Vérification changement de mot de passe
+const changePasswordSchema = Joi.object({
+  oldPassword: Joi.string().trim().min(8).required(),
+  newPassword: Joi.string().trim().min(8).required()
+});
+exports.changePassword = (req, res, next) => {
+  const {error, value} = changePasswordSchema.validate(req.body);
+  if (error) {
+    res.status(422).json({ error: "Données saisies invalides" });
+  } else {
+    next();
+  }
+};
+
+// Vérification droit utilisateur
+const adminCredentialSchema = Joi.valid(0, 1).required();
+exports.adminCredential = (req, res, next) => {
+  const {error, value} = adminCredentialSchema.validate(req.body.isadmin);
+  if (error) {
+      res.status(422).json({ error: "Données saisies invalides" });
+  } else {
+      next();
+  }
+}
