@@ -88,7 +88,7 @@ exports.adminCredential = (req, res, next) => {
     }
 }
 
-// Vérification publication
+// Vérification publication d'un post
 const postContentSchema = Joi.string().trim();
 exports.postContent = (req, res, next) => {
     if (req.body.content) {
@@ -100,6 +100,45 @@ exports.postContent = (req, res, next) => {
         }
     } else if (!req.body.content && !req.file) {
         res.status(422).json({ error: "Envoyer au moins une image ou un texte !" });
+    } else {
+        next();
+    }
+};
+
+// Vérification récupération d'un partie des publications
+const getPostsSchema = Joi.object({
+    limit: Joi.number().integer().positive().required(),
+    offset: Joi.number().integer().min(0).required()
+});
+exports.getSomePosts = (req, res, next) => {
+    const {error, value} = getPostsSchema.validate(req.params);
+    if (error) {
+        res.status(422).json({ error: "Données saisies invalides" });
+    } else {
+        next();
+    }
+};
+  
+// Vérification publication d'un commentaire
+const commentSchema = Joi.object({
+    postId: Joi.number().integer().positive().required(),
+    content: Joi.string().trim().required()
+});
+exports.comment = (req, res, next) => {
+    const {error, value} = commentSchema.validate(req.body);
+    if (error) {
+        res.status(422).json({ error: "Commentaire invalide" });
+    } else {
+        next();
+    }
+};
+  
+// Vérification lors de la récupération des commentaires d'un post
+const postIdSchema = Joi.number().integer().positive().required();
+exports.postId = (req, res, next) => {
+    const {error, value} = postIdSchema.validate(req.body.postId);
+    if (error) {
+        res.status(422).json({ error: "id de la publication invalide" });
     } else {
         next();
     }
