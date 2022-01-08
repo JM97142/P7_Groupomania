@@ -5,6 +5,8 @@ const router = express.Router();
 
 // Importation controllers
 const userCtrl = require('../controllers/user');
+
+// Middlewares
 const auth = require('../middlewares/auth');
 const validate = require('../middlewares/validate-inputs');
 const multer = require('../middlewares/multer-config');

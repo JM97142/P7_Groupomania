@@ -80,10 +80,27 @@ exports.changePassword = (req, res, next) => {
 // Vérification droit utilisateur
 const adminCredentialSchema = Joi.valid(0, 1).required();
 exports.adminCredential = (req, res, next) => {
-  const {error, value} = adminCredentialSchema.validate(req.body.isadmin);
-  if (error) {
-      res.status(422).json({ error: "Données saisies invalides" });
-  } else {
-      next();
-  }
+    const {error, value} = adminCredentialSchema.validate(req.body.isadmin);
+    if (error) {
+        res.status(422).json({ error: "Données saisies invalides" });
+    } else {
+        next();
+    }
 }
+
+// Vérification publication
+const postContentSchema = Joi.string().trim();
+exports.postContent = (req, res, next) => {
+    if (req.body.content) {
+        const {error, value} = postContentSchema.validate(req.body.content);
+        if (error) {
+        res.status(422).json({ error: "Données saisies invalides" });
+        } else {
+            next();
+        }
+    } else if (!req.body.content && !req.file) {
+        res.status(422).json({ error: "Envoyer au moins une image ou un texte !" });
+    } else {
+        next();
+    }
+};

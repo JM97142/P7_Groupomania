@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Auth from "../views/Auth.vue";
 import Home from "../views/Home.vue";
+import Post from "../views/Post.vue";
 import Setting from "../views/Setting.vue";
 import Search from "../views/Search.vue";
 
@@ -31,6 +32,12 @@ const routes = [
     name: "Home",
     beforeEnter: guardMyroute,
     component: Home,
+  },
+  {
+    path: "/post",
+    name: "Post",
+    beforeEnter: guardMyroute,
+    component: Post,
   },
   {
     path: "/setting",
