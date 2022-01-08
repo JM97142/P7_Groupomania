@@ -1,6 +1,7 @@
-equire('dotenv').config();
+// Importation modules
 const Cookies = require('cookies');
 const cryptojs = require('crypto-js');
+require("dotenv").config();
 
 const database = require('../utils/database');
 
@@ -25,4 +26,41 @@ exports.newComment = (req, res, next) => {
     }
   });
   connection.end();
+}
+
+// Récupérer tous les commentaires d'un post
+exports.getCommentsofPost = (req, res, next) => {
+    const connection = database.connect();
+    const postId = req.body.postId;
+    
+    const sql = "SELECT Comments.id AS commentId, Comments.publication_date AS commentDate, Comments.content As commentContent, Users.id AS userId, Users.name AS userName, Users.pictureurl AS userPicture\
+    FROM Comments\
+    INNER JOIN Users ON Comments.user_id = Users.id\
+    WHERE Comments.post_id = ?";
+    
+    const sqlParams = [postId];
+    connection.execute(sql, sqlParams, (error, comments, fields) => {
+        if (error) {
+            res.status(500).json({ "error": error.sqlMessage });
+        } else {
+            res.status(200).json({ comments });
+        }
+    });
+    connection.end();
+}
+
+// Suppression d'un commentaire
+exports.deleteComment = (req, res, next) => {
+    const connection = database.connect();
+    const commentId = parseInt(req.params.id, 10);
+    const sql = "DELETE FROM Comments WHERE id=?;";
+    const sqlParams = [commentId];
+    connection.execute(sql, sqlParams, (error, results, fields) => {
+        if (error) {
+            res.status(500).json({ "error": error.sqlMessage });
+        } else {
+            res.status(201).json({ message: 'Commentaire supprimée' });
+        }
+    });
+    connection.end();
 }

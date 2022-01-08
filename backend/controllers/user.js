@@ -326,3 +326,44 @@ exports.deleteAccount = (req, res, next) => {
     });
     connection.end();
 };
+
+// Récupération des publications d’un utilisateur
+exports.getAllPostsOfUser = (req, res, next) => {
+    const connection = database.connect();
+    const userId = req.params.id;
+    const sql =
+        "SELECT Posts.id AS postId, Posts.publication_date AS postDate, Posts.imageurl AS postImage, Posts.content as postContent, Users.id AS userId, Users.name AS userName, Users.pictureurl AS userPicture\
+        FROM Posts\
+        INNER JOIN Users ON Posts.user_id = Users.id\
+        WHERE Posts.user_id = ?\
+        ORDER BY postDate DESC;";
+    const sqlParams = [userId];
+    connection.execute(sql, sqlParams, (error, rawPosts, fields) => {
+        if (error) {
+            connection.end();
+            res.status(500).json({ error: error.sqlMessage });
+        } else {
+            getCommentsOfEachPosts(rawPosts, connection)
+            .then((postsWithoutLikes) => {
+            // 3: Pour chaque post, on rajoute les likes/dislikes
+            const cryptedCookie = new Cookies(req, res).get("snToken");
+            const userId = JSON.parse(
+                cryptojs.AES.decrypt(
+                cryptedCookie,
+                process.env.COOKIE_KEY
+                ).toString(cryptojs.enc.Utf8)
+            ).userId;
+            getLikesOfEachPosts(postsWithoutLikes, userId, connection)
+                .then((posts) => {
+                    res.status(200).json({ posts });
+                })
+                .catch((err) => {
+                    res.status(500).json({ error: "Un problème est survenu" });
+                });
+            })
+            .catch((err) => {
+                res.status(500).json({ error: "Un problème est survenu" });
+            });
+        }
+    });
+};  
