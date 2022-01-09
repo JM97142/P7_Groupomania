@@ -8,31 +8,36 @@ const database = require("../utils/database");
 // Aimer une publication
 exports.rate = (req, res, next) => {
     const connection = database.connect();
-
+  
     const cryptedCookie = new Cookies(req, res).get('snToken');
     const userId = JSON.parse(cryptojs.AES.decrypt(cryptedCookie, process.env.COOKIE_KEY).toString(cryptojs.enc.Utf8)).userId;
     const postId = req.body.postId;
     const rate = req.body.rate;
-
+  
     const sql = "DELETE FROM Likes\
-    WHERE (user_id=? AND post_id=?);";
+        WHERE (user_id=? AND post_id=?);";
     const sqlParams = [userId, postId];
-    
+  
     connection.execute(sql, sqlParams, (error, results, fields) => {
         if (error) {
             connection.end();
             res.status(500).json({ "error": error.sqlMessage });
         } else {
-      // Ajout du like/dislike
             const sql2 = "INSERT INTO Likes (rate, user_id, post_id)\
             VALUES (?, ?, ?);";
             const sqlParams2 = [rate, userId, postId];
-
+  
             connection.execute(sql2, sqlParams2, (error, results, fields) => {
                 if (error) {
                     res.status(500).json({ "error": error.sqlMessage });
                 } else {
+                    notification.addReaction(userId, postId) // Notification
+                .then(data => {
                     res.status(201).json({ message: 'Like ou dislike pris en compte' });
+                })
+                .catch(err => {
+                    res.status(500).json({ "error": err });
+                })
                 }
             });
             connection.end();
