@@ -1,5 +1,5 @@
 // Importation modules
-const Joi = require('joi');
+const Joi = require("joi");
 
 // Validation création nouvel utilisateur
 const newUserSchema = Joi.object({

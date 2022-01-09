@@ -1,8 +1,8 @@
 // Importation des modules 
-const jwt = require('jsonwebtoken');
-const Cookies = require('cookies');
-const cryptojs = require('crypto-js');
-require('dotenv').config();
+const jwt = require("jsonwebtoken");
+const Cookies = require("cookies");
+const cryptojs = require("crypto-js");
+require("dotenv").config();
 
 module.exports = (req, res, next) => {
   try {
