@@ -4,7 +4,6 @@ const cryptojs = require("crypto-js");
 require("dotenv").config();
 
 const database = require("../utils/database");
-const notification = require("../utils/notifications");
 
 // Aimer une publication
 exports.rate = (req, res, next) => {
