@@ -1,14 +1,15 @@
 // Importation des modules
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 // Importation controllers
-const postCtrl = require('../controllers/post');
+const postCtrl = require("../controllers/post");
 
 // Middlewares
-const auth = require('../middlewares/auth');
-const validate = require('../middlewares/validate-inputs');
-const multer = require('../middlewares/multer-config');
+const auth = require("../middlewares/auth");
+const multer = require("../middlewares/multer-config");
+const validate = require("../middleware/validate-input");
+const credential = require("../middleware/credential");
 
 // Routes
 router.post('/', auth, multer, validate.postContent, postCtrl.newPost);

@@ -5,6 +5,8 @@ require("dotenv").config();
 
 const database = require("../utils/database");
 
+const notification = require("../utils/notifications")
+
 // Nouveau commentaire
 exports.newComment = (req, res, next) => {
     const connection = database.connect();

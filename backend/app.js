@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 // Routes
@@ -11,7 +12,7 @@ const userRoutes = require("./routes/user");
 const postRoutes = require("./routes/post");
 const commentRoutes = require("./routes/comment");
 const likeRoutes = require("./routes/like");
-const notifRoutes = require("./routes/notif");
+const notiffRoutes = require("./routes/notif");
 
 const database = require("./utils/database");
 
@@ -47,5 +48,6 @@ app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 app.use('/api/like', likeRoutes);
+app.use('api/notif', notiffRoutes);
 
 module.exports = app;

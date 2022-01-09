@@ -1,14 +1,14 @@
 // Modules
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 // Controllers
-const commentCtrl = require('../controllers/comment');
+const commentCtrl = require("../controllers/comment");
 
 // Middlewares
-const auth = require('../middlewares/auth');
-const validate = require('../middlewares/validate-inputs');
-const credential = require('../middlewares/credential')
+const auth = require("../middlewares/auth");
+const validate = require("../middlewares/validate-inputs");
+const credential = require("../middlewares/credential")
 
 // Routes
 router.post('/', auth, validate.comment, commentCtrl.newComment);
