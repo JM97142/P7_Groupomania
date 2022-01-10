@@ -1,7 +1,7 @@
-// Modules
+// Module
 const Joi = require("joi");
 
-// Verification création d'un nouvel utilisateur
+// Validation création d'un nouvel utilisateur
 const newUserSchema = Joi.object({
   name: Joi.string().trim().required(),
   email: Joi.string().trim().email().required(),
@@ -16,7 +16,7 @@ exports.newUser = (req, res, next) => {
   }
 };
 
-// Vérification login utilisateur
+// Validation login utilisateur
 const loginSchema = Joi.object({
   email: Joi.string().trim().email().required(),
   password: Joi.string().trim().min(8).required()
@@ -30,7 +30,7 @@ exports.login = (req, res, next) => {
   }
 };
 
-// Vérification Id
+// Validation Id
 const idSchema = Joi.number().integer().positive().required();
 exports.id = (req, res, next) => {
   const {error, value} = idSchema.validate(req.params.id);
@@ -41,7 +41,7 @@ exports.id = (req, res, next) => {
   } 
 }
 
-// Vérification recherche d'utilisateur
+// Validation recherche d'utilisateur
 const searchUserSchema = Joi.string().trim();
 exports.searchUser = (req, res, next) => {
   const {error, value} = searchUserSchema.validate(req.query.name);
@@ -52,7 +52,7 @@ exports.searchUser = (req, res, next) => {
   } 
 }
 
-// Vérification description d'un utilisateur
+// Validation description d'un utilisateur
 const outlineSchema = Joi.string().trim().required();
 exports.outline = (req, res, next) => {
   const {error, value} = outlineSchema.validate(req.body.outline);
@@ -63,7 +63,7 @@ exports.outline = (req, res, next) => {
   }
 }
 
-// Vérification changement de mot de passe
+// Validation changement de mot de passe
 const changePasswordSchema = Joi.object({
   oldPassword: Joi.string().trim().min(8).required(),
   newPassword: Joi.string().trim().min(8).required()
@@ -77,7 +77,7 @@ exports.changePassword = (req, res, next) => {
   }
 };
 
-// Vérification attribution/retrait du droit utilisateur
+// Validation attribution/retrait du droit utilisateur
 const adminCredentialSchema = Joi.valid(0, 1).required();
 exports.adminCredential = (req, res, next) => {
   const {error, value} = adminCredentialSchema.validate(req.body.isadmin);
@@ -88,7 +88,7 @@ exports.adminCredential = (req, res, next) => {
   }
 }
 
-// Vérification publication d'un post
+// Validation publication d'un post
 const postContentSchema = Joi.string().trim();
 exports.postContent = (req, res, next) => {
   if (req.body.content) {
@@ -105,7 +105,7 @@ exports.postContent = (req, res, next) => {
   }
 };
 
-// Vérification lors de la récupération d'un partie des publications
+// Validation lors de la récupération d'un partie des publications
 const getPostsSchema = Joi.object({
   limit: Joi.number().integer().positive().required(),
   offset: Joi.number().integer().min(0).required()
@@ -119,7 +119,7 @@ exports.getSomePosts = (req, res, next) => {
   }
 };
 
-// Vérification publication d'un commentaire
+// Validation publication d'un commentaire
 const commentSchema = Joi.object({
   postId: Joi.number().integer().positive().required(),
   content: Joi.string().trim().required()
@@ -133,7 +133,7 @@ exports.comment = (req, res, next) => {
   }
 };
 
-// Vérification lors de la récupération des commentaires d'un post
+// Validation lors de la récupération des commentaires d'un post
 const postIdSchema = Joi.number().integer().positive().required();
 exports.postId = (req, res, next) => {
   const {error, value} = postIdSchema.validate(req.body.postId);
@@ -144,7 +144,7 @@ exports.postId = (req, res, next) => {
   }
 };
 
-// Vérification lors d'un like/dislike
+// Validation lors d'un like/dislike
 const likeSchema = Joi.object({
   postId: Joi.number().integer().positive().required(),
   rate: Joi.valid(-1, 0, 1).required()
