@@ -2,14 +2,14 @@
 const express = require("express");
 const router = express.Router();
 
-// Importation controllers
+// Controllers
 const postCtrl = require("../controllers/post");
 
 // Middlewares
 const auth = require("../middlewares/auth");
+const validate = require("../middlewares/validate-inputs");
 const multer = require("../middlewares/multer-config");
-const validate = require("../middleware/validate-input");
-const credential = require("../middleware/credential");
+const credential = require("../middlewares/credential");
 
 // Routes
 router.post('/', auth, multer, validate.postContent, postCtrl.newPost);

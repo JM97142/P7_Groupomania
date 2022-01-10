@@ -1,4 +1,4 @@
-// Importation des modules 
+// Imporation des modules
 const jwt = require("jsonwebtoken");
 const Cookies = require("cookies");
 const cryptojs = require("crypto-js");

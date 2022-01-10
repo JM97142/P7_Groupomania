@@ -1,53 +1,53 @@
-// Importation des modules
-const express = require("express");
-const bodyParser = require("body-parser");
-const helmet = require("helmet");
-const morgan = require("morgan");
-const path = require("path");
-const fs = require("fs");
-require("dotenv").config();
+const express = require('express');
+const bodyParser = require('body-parser');
+require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
+const morgan = require('morgan');
+const helmet = require('helmet');
 
-// Routes
-const userRoutes = require("./routes/user");
-const postRoutes = require("./routes/post");
-const commentRoutes = require("./routes/comment");
-const likeRoutes = require("./routes/like");
-const notiffRoutes = require("./routes/notif");
+const userRoutes = require('./routes/user');
+const postRoutes = require('./routes/post');
+const commentRoutes = require('./routes/comment');
+const likeRoutes = require('./routes/like');
+const notifRoutes = require('./routes/notif');
 
-const database = require("./utils/database");
+const database = require('./utils/database');
 
-// Application
+// Lancement de Express
 const app = express();
 
-// CORS
+/**
+ * MIDDLEWARES
+ */
+// Configuration cors
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
-    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    next();
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  next();
 });
-
+// Parse le body des requetes en json
 app.use(bodyParser.json());
-
-// Sécurisation headers
+// Sécurisation des headers
 app.use(helmet());
-
-// Requêtes au serveur
+// Log toutes les requêtes passées au serveur
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 app.use(morgan('combined', { stream: accessLogStream }));
 
-// Connexion base de données
+//connection à la bdd
 database.connect();
-console.log("Connexion à MySQL réussie !");
+console.log("Connection à MySql réussi !");
 
-app.use("/images", express.static(path.join(__dirname, "images")));
-
-app.use("api/user", userRoutes);
+/**
+ * ROUTES
+ */
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 app.use('/api/like', likeRoutes);
-app.use('api/notif', notiffRoutes);
+app.use('/api/notif', notifRoutes);
 
 module.exports = app;
