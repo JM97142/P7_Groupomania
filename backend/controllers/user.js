@@ -39,8 +39,8 @@ exports.newuser = (req, res, next) => {
           // Requete SQL
           const sql =
             "\
-          INSERT INTO Users (name, email, password, isadmin)\
-          VALUES (?, ?, ?, ?);";
+            INSERT INTO Users (name, email, password, isadmin)\
+            VALUES (?, ?, ?, ?);";
           const sqlParams = [name, email, password, isAdmin];
 
           connection.execute(sql, sqlParams, (error, results, fields) => {
